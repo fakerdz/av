@@ -1,6 +1,85 @@
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer 
-script_key="kEqAUEixABrDUkLTLCPGurBYQCmbBzrd";
-loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/b22aae7d03041699ada62f6a4fb519fd.lua"))()
+getgenv().Key = "c31a56312881f232f40e1757" 
+getgenv().Config = {
+    ["Input Discord Ping"] = "",
+    ["Auto Use Potion"] = true,
+    ["Select Rarity"] = {
+        ["Exclusive"] = true,
+        ["Divine"] = true,
+        ["Mythical"] = true,
+        ["Exotic"] = true,
+        ["Superior"] = true,
+        ["Celestial"] = true,
+        ["Secret"] = true
+    },
+    ["Select Potions Use"] = {
+        ["Faster Rolls Potion"] = true,
+        ["The Cocktail"] = true,
+        ["Items Potion III"] = true
+    },
+    ["Auto Roll"] = true,
+    ["Hidden Roll"] = true,
+    ["Auto Use Fruit"] = true,
+    ["Select Items Buy"] = {
+        ["Instant Luck Potion II"] = true,
+        ["Lucky Potion IV"] = true,
+        ["Golden Dice Potion"] = true,
+        ["Instant Luck Potion I"] = true,
+        ["Rainbow Dice Potion"] = true,
+        ["Lucky Potion V"] = true,
+        ["Instant Luck Potion III"] = true
+    },
+    ["Url Webhook"] = "",
+    ["Auto Machine Fruit"] = true,
+    ["Auto Farm Coins"] = true,
+    ["Auto Collect Loot Bag"] = false,
+    ["Auto Dig"] = true,
+    ["Auto Buy Vending Machine"] = true,
+    ["Webhook Roll Pet"] = false,
+    ["Input Difficulty Pet"] = "1000000",
+    ["Auto Buy Shop Index"] = true,
+    ["Ping Discord"] = false,
+    ["Auto Buy Upgrades"] = true,
+    ["Select Potions Craft"] = {
+        ["Coins Potion II"] = true,
+        ["Lucky Potion IV"] = true,
+        ["Lucky Potion V"] = true,
+        ["Walkspeed Potion II"] = true,
+        ["Lucky Potion II"] = true,
+        ["Coins Potion III"] = true,
+        ["Coins Potion V"] = true,
+        ["Faster Rolls Potion"] = true,
+        ["Items Potion II"] = true,
+        ["The Cocktail"] = true,
+        ["Items Potion III"] = true,
+        ["Instant Luck Potion II"] = true,
+        ["Instant Luck Potion I"] = true,
+        ["Rainbow Dice Potion"] = true,
+        ["Coins Potion IV"] = true,
+        ["Breakables Potion II"] = true,
+        ["Lucky Potion III"] = true,
+        ["Walkspeed Potion III"] = true,
+        ["Golden Dice Potion"] = true,
+        ["Instant Luck Potion III"] = true,
+        ["Walkspeed Potion I"] = true,
+        ["Items Potion I"] = true,
+        ["Breakables Potion I"] = true
+    },
+    ["Infinite Speed Pet"] = true,
+    ["Auto Craft Potion"] = true,
+    ["Black Screen"] = true,
+    ["Boost FPS"] = true,
+    ["Select Fruits"] = {
+        ["Watermelon"] = true,
+        ["Pineapple"] = true,
+        ["Apple"] = true,
+        ["Rainbow"] = true,
+        ["Orange"] = true,
+        ["Banana"] = true
+    }
+}
+loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))() 
+
 local start = tick()
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
 
