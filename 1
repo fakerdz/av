@@ -1,54 +1,6 @@
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer 
-getgenv().Config = {
-    ["Webhook"] = {
-        ["Pet Rolled"] = true,
-        ["Minimum Chance"] = 1000000,
-        ["URL"] = "https://discord.com/api/webhooks/1200472646060613803/KcyfZ3CsGd6QNMCooPygaoJsn2hSuI4SBTMH-gI3vywuvHQDbGr9id8T2Y6t5TbmMQZj"
-    },
-    ["Consumer"] = {
-        ["Potion"] = {
-            ["Enable"] = true
-        },
-        ["Fruit"] = {
-            ["Enable"] = true,
-            ["Fruit"] = {
-                ["Watermelon"] = true,
-                ["Pineapple"] = true,
-                ["Rainbow"] = true,
-                ["Apple"] = true,
-                ["Orange"] = true,
-                ["Banana"] = true
-            }
-        }
-    },
-    ["Upgrader"] = {
-        ["Enable"] = true,
-        ["Keep Amount"] = 100
-    },
-    ["Crafter"] = {
-        ["Enable"] = true
-    },
-    ["Resource"] = {
-        ["Auto Farm"] = true,
-        ["Auto Hidden Gift"] = true
-    },
-    ["Performance"] = {
-        ["Boost FPS"] = true
-    },
-    ["Sender"] = {
-        ["Minimum Chance"] = 1000000
-    },
-    ["Buyer"] = {
-        ["Potion Vending"] = true
-    },
-    ["Interface"] = {
-        ["Auto Upgrade"] = true,
-        ["Auto Roll"] = true,
-        ["Fast Roll"] = true
-    }
-}
-getgenv().Key = "kb75f18b95fcf36602fa806d"
-loadstring(game:HttpGet("https://nousigi.com/loader.lua"))()
+script_key="kEqAUEixABrDUkLTLCPGurBYQCmbBzrd";
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/b22aae7d03041699ada62f6a4fb519fd.lua"))()
 local start = tick()
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
 
