@@ -1,77 +1,54 @@
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer 
-getgenv().Key = "c31a56312881f232f40e1757" 
 getgenv().Config = {
-	["Input Discord Ping"] = "",
-	["Auto Use Potion"] = true,
-	["Webhook Send Mail"] = false,
-	["Auto Roll"] = true,
-	["Url Webhook"] = "https://discord.com/api/webhooks/1200472646060613803/KcyfZ3CsGd6QNMCooPygaoJsn2hSuI4SBTMH-gI3vywuvHQDbGr9id8T2Y6t5TbmMQZj",
-	["Hidden Roll"] = true,
-	["Input Difficulty Pet Send"] = "1000000",
-	["Select Potions Use"] = {
-		["Faster Rolls Potion"] = true,
-		["Walkspeed Potion III"] = true,
-		["The Cocktail"] = true,
-		["Instant Luck Potion III"] = true,
-		["Items Potion III"] = true,
-		["Breakables Potion II"] = true,
-		["Coins Potion V"] = true
-	},
-	["Auto Use Fruit"] = true,
-	["Black Screen"] = false,
-	["Infinite Speed Pet"] = true,
-	["Select Items Buy"] = {
-		["Instant Luck Potion II"] = true,
-		["Instant Luck Potion III"] = true,
-		["Rainbow Dice Potion"] = true,
-		["Lucky Potion V"] = true,
-		["Instant Luck Potion I"] = true
-	},
-	["Auto Claim MailBox"] = true,
-	["Auto Buy Shop Index"] = true,
-	["Auto Machine Fruit"] = true,
-	["Auto Buy Upgrades"] = true,
-	["Auto Collect Loot Bag"] = true,
-	["Input Username"] = "",
-	["Auto Buy Vending Machine"] = true,
-	["Webhook Roll Pet"] = true,
-	["Input Difficulty Pet"] = "1000000",
-	["Auto Dig"] = true,
-	["Ping Discord"] = true,
-	["Auto Send Mail"] = false,
-	["Select Potions Craft"] = {
-		["Coins Potion II"] = true,
-		["Lucky Potion IV"] = true,
-		["Rainbow Dice Potion"] = true,
-		["Walkspeed Potion II"] = true,
-		["Items Potion III"] = true,
-		["Coins Potion III"] = true,
-		["Coins Potion V"] = true,
-		["Instant Luck Potion II"] = true,
-		["Items Potion II"] = true,
-		["Breakables Potion II"] = true,
-		["Lucky Potion III"] = true,
-		["Coins Potion IV"] = true,
-		["Instant Luck Potion I"] = true,
-		["Instant Luck Potion III"] = true,
-		["Lucky Potion V"] = true,
-		["Walkspeed Potion III"] = true,
-		["Lucky Potion II"] = true
-	},
-	["Boost FPS"] = true,
-	["Auto Craft Potion"] = true,
-	["Auto Farm Coins"] = true,
-	["Auto Roll Fast"] = true,
-	["Select Fruits"] = {
-		["Watermelon"] = true,
-		["Pineapple"] = true,
-		["Apple"] = true,
-		["Rainbow"] = true,
-		["Orange"] = true,
-		["Banana"] = true
-	}
+    ["Webhook"] = {
+        ["Pet Rolled"] = true,
+        ["Minimum Chance"] = 1000000,
+        ["URL"] = "https://discord.com/api/webhooks/1200472646060613803/KcyfZ3CsGd6QNMCooPygaoJsn2hSuI4SBTMH-gI3vywuvHQDbGr9id8T2Y6t5TbmMQZj"
+    },
+    ["Consumer"] = {
+        ["Potion"] = {
+            ["Enable"] = true
+        },
+        ["Fruit"] = {
+            ["Enable"] = true,
+            ["Fruit"] = {
+                ["Watermelon"] = true,
+                ["Pineapple"] = true,
+                ["Rainbow"] = true,
+                ["Apple"] = true,
+                ["Orange"] = true,
+                ["Banana"] = true
+            }
+        }
+    },
+    ["Upgrader"] = {
+        ["Enable"] = true,
+        ["Keep Amount"] = 100
+    },
+    ["Crafter"] = {
+        ["Enable"] = true
+    },
+    ["Resource"] = {
+        ["Auto Farm"] = true,
+        ["Auto Hidden Gift"] = true
+    },
+    ["Performance"] = {
+        ["Boost FPS"] = true
+    },
+    ["Sender"] = {
+        ["Minimum Chance"] = 1000000
+    },
+    ["Buyer"] = {
+        ["Potion Vending"] = true
+    },
+    ["Interface"] = {
+        ["Auto Upgrade"] = true,
+        ["Auto Roll"] = true,
+        ["Fast Roll"] = true
+    }
 }
-loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
+getgenv().Key = "kb75f18b95fcf36602fa806d"
+loadstring(game:HttpGet("https://nousigi.com/loader.lua"))()
 local start = tick()
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
 
