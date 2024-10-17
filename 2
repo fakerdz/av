@@ -1,103 +1,50 @@
-repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
+local Players = game:GetService('Players')
+local Client = Players.LocalPlayer
 
--- Price will sell
---> Rap - Rap*_G.Percent
-_G.Percent = 0; --> 50%
+_G.EnableFriendRequest = true
+_G.EnableAutoAcceptFriendRequest = true
+local interval = 60
 
--- Hop Server
-_G.Seconds = 30;
-
-local Client = game.Players.LocalPlayer
-
-local Rap =  require(game.ReplicatedStorage.Library.Client.RAPCmds)
-local v8 = require(game.ReplicatedStorage.Library.Items.PetItem);
-
-local best_rap_pets = {}
-
-for _, v20 in pairs(v8:All()) do
-    local value = Rap.Get(v20)
-    table.insert(best_rap_pets, {rap = value, pet = v20})
+local function SendFriendRequests()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= Client then  
+            Client:RequestFriendship(player)
+            warn("Đã gửi yêu cầu kết bạn tới:", player.Name)
+        end
+        wait(1) 
+    end
 end
 
-table.sort(best_rap_pets, function(a, b)
-    return a.rap > b.rap
+local function AutoAcceptFriendRequests()
+
+    Client.FriendRequestEvent:Connect(function(requestingPlayer)
+        if _G.EnableAutoAcceptFriendRequest then
+            Client:RequestFriendship(requestingPlayer) 
+            warn("Đã chấp nhận yêu cầu kết bạn từ:", requestingPlayer.Name)
+        end
+    end)
+end
+
+local function MainLoop()
+    while true do
+        if _G.EnableFriendRequest then
+            SendFriendRequests()
+        end
+        wait(interval)
+    end
+end
+
+task.spawn(function()
+    AutoAcceptFriendRequests()
 end)
 
-local function Hop()
-    local Http = game:GetService("HttpService")
-    local TPS = game:GetService("TeleportService")
-    local Players = game:GetService("Players")
-    local Client = Players.LocalPlayer
-    local Api = "https://games.roblox.com/v1/games/"
-    
-    local _place, _id = game.PlaceId, game.JobId
-    local _servers = Api .. _place .. "/servers/Public?sortOrder=Asc&limit=100"
-    
-    local function List(cursor)
-        local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
-        return Http:JSONDecode(Raw)
-    end
+task.spawn(function()
+    MainLoop()
+end)
 
-    if Client.Character and Client.Character:FindFirstChild("HumanoidRootPart") then
-        Client.Character.HumanoidRootPart.Anchored = true
-    end
-    
-    local Servers = List()
-    local foundServer = false
-
-    pcall(function()
-        for _, server in ipairs(Servers.data) do
-            if server.playing < 40 and server.id ~= _id then
-                TPS:TeleportToPlaceInstance(_place, server.id, Client)
-                foundServer = true
-                break
-            end
-        end
-    end)
-
-    if not foundServer then
-        print("Không tìm thấy server dưới 40 người chơi.")
-    end
-end
---
-if game.PlaceId == 19006211286 then
-    local Count = 0;
-    game:GetService("ReplicatedStorage").Network["Booths_ClaimAnyBooth"]:InvokeServer()
-
-    task.spawn(function()
-        while task.wait() do
-            for _, pet in ipairs(best_rap_pets) do
-                local uid = pet.pet._uid
-                local amount = pet.pet._data and pet.pet._data._am or 1
-                local price = (math.floor(pet.rap - pet.rap*_G.Percent/100)) * amount
-                
-                if pet.pet._data and pet.pet._data._lk then
-                    game:GetService("ReplicatedStorage").Network["Locking_SetLocked"]:InvokeServer(uid, false)
-                end
-                --print(amount, price, uid, pet.pet._data.id)
-                game:GetService("ReplicatedStorage").Network.Booths_CreateListing:InvokeServer(uid, price, amount)
-            end
-        end
-    end)
-    task.spawn(function()
-        while task.wait(1) do
-            if Count == _G.Seconds then
-                Hop();
-            end
-            Count+=1;
-            print(Count)
-        end
-    end)
-else
-    repeat
-        if Client and Client.Character then
-            local hrp = Client.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                pcall(function()
-                    hrp.CFrame = workspace.MAP.TradingPlazaPortal.PortalPart.CFrame
-                end)
-            end
-        end
-        task.wait(1)
-    until false
-end
+Client.Idled:connect(function()
+    local VirtualUser = game:GetService('VirtualUser')
+    VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+    wait(1)
+    VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+end)
