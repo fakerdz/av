@@ -6,10 +6,10 @@ _G.Percent = 10; --> 50%
 
 -- Claim Mail
 _G.Place = 10;
-_G.WaitToClaim = 30;
+_G.WaitToClaim = 2;
 
 -- Hop Server
-_G.Seconds = 300;
+_G.Seconds = 600;
 _G.Refresh = 10;
 _G.Min = 15;
 
@@ -20,6 +20,7 @@ local Rap =  require(l_ReplicatedStorage_0.Library.Client.RAPCmds);
 local v8 = require(l_ReplicatedStorage_0.Library.Items.PetItem);
 local v27 = require(l_ReplicatedStorage_0.Library.Client.Network);
 local v13 = require(l_ReplicatedStorage_0.Library.Client.GUI);
+local v4 = require(game.ReplicatedStorage.Library.Signal);
 
 local v37 = v13.MailboxMachine();
 local l_Frame_0 = v37.Frame;
@@ -85,13 +86,19 @@ if game.PlaceId == 19006211286 then
     local Reset = 0;
 
     v27.Fire("Booths_WipeSavedListings");
-    v27.Invoke("Booths_ClaimAnyBooth");
+    local v11, v12 = v27.Invoke("Booths_ClaimAnyBooth");
+    if v11 then
+        local v13 = v4.Invoke("Booths_GetPlaceholderModelFromID", (tostring(v12)));
+    
+        local l_v13_Pivot_0 = v13:GetPivot();
+        Client.Character.HumanoidRootPart.CFrame = l_v13_Pivot_0 * CFrame.new(0, 0, -8)
+    end
 
     task.spawn(function()
         while true do
 
             for _, v20 in pairs(v8:All()) do
-                if v20 and not v20:IsHuge() then
+                if v20 --[[and not v20:IsHuge()]] then
                     local value = l_ReplicatedStorage_0.__DIRECTORY.Pets:FindFirstChild(v20._data.id) and require(l_ReplicatedStorage_0.__DIRECTORY.Pets[v20._data.id]).difficulty
                     local rap = Rap.Get(v20)
                     if value and rap then
@@ -186,7 +193,7 @@ else
                 end)
             end
         end
-        task.wait(1)
+        task.wait(5)
     until false
 end
 
