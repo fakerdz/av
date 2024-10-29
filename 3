@@ -2,16 +2,17 @@ repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
 
 -- Price will sell
 --> Rap - Rap*_G.Percent
-_G.Percent = 15; --> 50%
+_G.Percent = 25; --> 50%
 
 -- Claim Mail
+_G.SellHuge = false;
 _G.Place = 10;
-_G.WaitToClaim = 2;
+_G.WaitToClaim = 30;
 
 -- Hop Server
-_G.Seconds = 600;
+_G.Seconds = 300;
 _G.Refresh = 10;
-_G.Min = 25;
+_G.Min = 15;
 
 local Client = game.Players.LocalPlayer
 
@@ -98,7 +99,7 @@ if game.PlaceId == 19006211286 then
         while true do
 
             for _, v20 in pairs(v8:All()) do
-                if v20 --[[and not v20:IsHuge()]] then
+                if v20 and (_G.SellHuge and v20:IsHuge() or not _G.SellHuge) then
                     local value = l_ReplicatedStorage_0.__DIRECTORY.Pets:FindFirstChild(v20._data.id) and require(l_ReplicatedStorage_0.__DIRECTORY.Pets[v20._data.id]).difficulty
                     local rap = Rap.Get(v20)
                     if value and rap then
