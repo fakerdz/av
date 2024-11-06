@@ -1,23 +1,199 @@
-script_key="DasBBHjxaaGsQLHaauIflgIntonolWVk";
+-- Cấu hình bán
+_G.Percent = 20  -- Giảm giá theo phần trăm khi bán item và pet
+_G.SellHuge = true
+_G.Place = 10
+_G.WaitToClaim = 30
 
-getgenv().petsGoConfig = {
-    DISCORD_ID = "1120921298860773456",
-    PLAZA_WEBHOOK_URL = "https://discord.com/api/webhooks/1200472950739062815/KLiAZEKCQkp4dL7NOreVz8vNL8Eenu_Aa-ubZzK_cCGQ_fltfY5fPD5UPtoISMhdrRjb",
+-- Cấu hình hop server
+_G.Seconds = 300
+_G.Refresh = 10
+_G.Min = 15
 
-    -- Plaza hop delay will reset if someone purchase something.
-    PLAZA_HOP_DELAY = 15,  -- (minutes) If no one purchase, server hop
-    SELL_PERCENTAGE_10M = 0.6,  -- 1 = 100% RAP, 0.8 = 80% RAP (Example: 100k RAP config 0.9 = Sell For 90k Gems)
-    SELL_PERCENTAGE_50M = 0.7,  -- 1 = 100% RAP, 0.8 = 80% RAP
-    SELL_PERCENTAGE_100M = 0.8,  -- 1 = 100% RAP, 0.8 = 80% RAP
+-- Tên của item cần bán
+local itemNameToSell = "Instant Luck Potion IV"
 
-    SELL_HUGE_SECRET = true,  -- true/false, enable selling secret and huges
-    SELL_PERCENTAGE_HUGE_SECRET = 0.9,  -- 1 = 100% RAP, 0.8 = 80% RAP
+local Client = game.Players.LocalPlayer
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage")
+local Rap = require(l_ReplicatedStorage_0.Library.Client.RAPCmds)
+local v8 = require(l_ReplicatedStorage_0.Library.Items.PetItem)
+local v27 = require(l_ReplicatedStorage_0.Library.Client.Network)
+local v13 = require(l_ReplicatedStorage_0.Library.Client.GUI)
+local v4 = require(game.ReplicatedStorage.Library.Signal)
+local VirtualUser = game:GetService('VirtualUser')
 
-    SELL_POTION = true,  -- true/false (only sell insta luck 4)
-    SELL_PERCENTAGE_POTION = 0.9,  -- 1 = 100% RAP, 0.8 = 80% RAP
+-- Tạo danh sách các item có thể bán
+local best_rap_pets = {}
 
-    MAIL_GEMS_USERNAME = "",  -- Empty = Disabled Gem Mail
-    MAIL_GEMS_MIN = 1000000  -- Minimum gems required to send
-}
+local function GetSellableItem()
+    local sellableItem = nil
+    for _, item in pairs(v8:All()) do
+        if item._data.id == itemNameToSell then
+            sellableItem = item
+            break
+        end
+    end
+    return sellableItem
+end
 
-loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/074ae419ea26f2a773d8e592958ec2e8.lua"))()
+local function Hop()
+    local Http = game:GetService("HttpService")
+    local TPS = game:GetService("TeleportService")
+    local Players = game:GetService("Players")
+    local Client = Players.LocalPlayer
+    local Api = "https://games.roblox.com/v1/games/"
+    
+    local _place, _id = game.PlaceId, game.JobId
+    local _servers = Api .. _place .. "/servers/Public?sortOrder=Asc&limit=100"
+    
+    local function List(cursor)
+        local Raw = game:HttpGet(_servers .. ((cursor and "&cursor="..cursor) or ""))
+        return Http:JSONDecode(Raw)
+    end
+
+    if Client.Character and Client.Character:FindFirstChild("HumanoidRootPart") then
+        Client.Character.HumanoidRootPart.Anchored = true
+    end
+    
+    local Servers = List()
+    local foundServer = false
+
+    pcall(function()
+        for _, server in ipairs(Servers.data) do
+            if server.playing >= _G.Min and server.playing < 40 and server.id ~= _id then
+                TPS:TeleportToPlaceInstance(_place, server.id, Client)
+                foundServer = true
+                break
+            end
+        end
+    end)
+
+    if not foundServer then
+        print("Không tìm thấy server dưới 40 người chơi.")
+    end
+end
+
+local function ClaimMail()
+    local l_GiftsFrame_0 = v13.MailboxMachine().Frame:FindFirstChild("GiftsFrame")
+    local l_ItemsFrame_1 = l_GiftsFrame_0.ItemsFrame
+    for _, v150 in next, (l_ItemsFrame_1:GetChildren()) do
+        if v150 and not v150:IsA("UIPadding") and not v150:IsA("UIGridLayout") then
+            v27.Invoke("Mailbox: Claim", {v150.Name})
+            print("Đã nhận mail.")
+        end
+    end
+end
+
+if game.PlaceId == 19006211286 then
+    local Count = 0
+    local Reset = 0
+
+    v27.Fire("Booths_WipeSavedListings")
+    local v11, v12 = v27.Invoke("Booths_ClaimAnyBooth")
+    if v11 then
+        local v13 = v4.Invoke("Booths_GetPlaceholderModelFromID", (tostring(v12)))
+        local l_v13_Pivot_0 = v13:GetPivot()
+        Client.Character.HumanoidRootPart.CFrame = l_v13_Pivot_0 * CFrame.new(0, 0, -8)
+    end
+
+    task.spawn(function()
+        while true do
+            -- Ưu tiên bán item trước
+            local sellableItem = GetSellableItem()
+            if sellableItem then
+                local itemUid = sellableItem._uid
+                local itemPrice = math.floor(Rap.Get(sellableItem) - Rap.Get(sellableItem) * _G.Percent / 100)
+                local attempts = 0
+                local success = false
+
+                repeat
+                    local v208, v209 = v27.Invoke("Booths_CreateListing", itemUid, itemPrice, 1)
+                    if v208 then
+                        print("Item bán thành công:", itemNameToSell)
+                        success = true
+                    else
+                        attempts = attempts + 1
+                        warn(v209)
+                    end
+                    task.wait(_G.Place)
+                until success or attempts >= 3
+            end
+
+            -- Sau đó tiếp tục với pet
+            for _, pet in pairs(v8:All()) do
+                if pet and (_G.SellHuge and pet:IsHuge() or not _G.SellHuge) then
+                    local value = l_ReplicatedStorage_0.__DIRECTORY.Pets:FindFirstChild(pet._data.id) and require(l_ReplicatedStorage_0.__DIRECTORY.Pets[pet._data.id]).difficulty
+                    local rap = Rap.Get(pet)
+                    if value and rap then
+                        table.insert(best_rap_pets, {rap = rap, dmg = value, pet = pet})
+                        table.sort(best_rap_pets, function(a, b)
+                            return a.dmg > b.dmg
+                        end)
+                    end
+                end
+            end
+            
+            for _, petData in ipairs(best_rap_pets) do
+                local pet = petData.pet
+                if pet and pet._uid then
+                    local petPrice = math.floor(petData.rap - petData.rap * _G.Percent / 100)
+                    local attempts = 0
+                    local success = false
+                    repeat
+                        if pet._data and pet._data._lk then
+                            v27.Invoke("Locking_SetLocked", pet._uid, false)
+                        end
+                        local v208, v209 = v27.Invoke("Booths_CreateListing", pet._uid, petPrice, 1)
+                        if v208 then
+                            print("Pet bán thành công:", pet._data.id)
+                            success = true
+                        else
+                            attempts = attempts + 1
+                            warn(v209)
+                        end
+                        task.wait(_G.Place)
+                    until success or attempts >= 2
+                end
+            end
+            task.wait()
+        end
+    end)
+
+    task.spawn(function()
+        while task.wait(1) do
+            if Count == _G.Seconds then
+                Hop()
+            end
+            if Reset == _G.Refresh then
+                best_rap_pets = {}
+                Reset = 0
+            end
+            Count += 1
+            Reset += 1
+        end
+    end)
+
+    task.spawn(function()
+        while true do
+            ClaimMail()
+            task.wait(_G.WaitToClaim)
+        end
+    end)
+else
+    repeat
+        if Client and Client.Character then
+            local hrp = Client.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                pcall(function()
+                    hrp.CFrame = workspace.MAP.TradingPlazaPortal.PortalPart.CFrame
+                end)
+            end
+        end
+        task.wait(5)
+    until false
+end
+
+Client.Idled:connect(function()
+    VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+    wait(1)
+    VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+end)
