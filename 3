@@ -1,21 +1,23 @@
-script_key="WdeIbSCZEBXtxPjTnYmSkxTcHTPFVeSV";
+script_key="DasBBHjxaaGsQLHaauIflgIntonolWVk";
 
 getgenv().petsGoConfig = {
-    DISCORD_ID = "876304731688038460",
+    DISCORD_ID = "1120921298860773456",
     PLAZA_WEBHOOK_URL = "https://discord.com/api/webhooks/1200472950739062815/KLiAZEKCQkp4dL7NOreVz8vNL8Eenu_Aa-ubZzK_cCGQ_fltfY5fPD5UPtoISMhdrRjb",
 
     -- Plaza hop delay will reset if someone purchase something.
-    PLAZA_HOP_DELAY = 10,  -- (minutes) If no one purchase, server hop
-    SELL_PERCENTAGE_100M = 1,  -- 1 = 100% RAP, 0.8 = 80% RAP
+    PLAZA_HOP_DELAY = 15,  -- (minutes) If no one purchase, server hop
+    SELL_PERCENTAGE_10M = 0.6,  -- 1 = 100% RAP, 0.8 = 80% RAP (Example: 100k RAP config 0.9 = Sell For 90k Gems)
+    SELL_PERCENTAGE_50M = 0.7,  -- 1 = 100% RAP, 0.8 = 80% RAP
+    SELL_PERCENTAGE_100M = 0.8,  -- 1 = 100% RAP, 0.8 = 80% RAP
 
     SELL_HUGE_SECRET = true,  -- true/false, enable selling secret and huges
-    SELL_PERCENTAGE_HUGE_SECRET = 1,  -- 1 = 100% RAP, 0.8 = 80% RAP
+    SELL_PERCENTAGE_HUGE_SECRET = 0.9,  -- 1 = 100% RAP, 0.8 = 80% RAP
 
     SELL_POTION = true,  -- true/false (only sell insta luck 4)
-    SELL_PERCENTAGE_POTION = 0.8,  -- 1 = 100% RAP, 0.8 = 80% RAP
+    SELL_PERCENTAGE_POTION = 0.9,  -- 1 = 100% RAP, 0.8 = 80% RAP
 
     MAIL_GEMS_USERNAME = "",  -- Empty = Disabled Gem Mail
     MAIL_GEMS_MIN = 1000000  -- Minimum gems required to send
 }
 
-loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/edafbc84006c0897b76b0d07cef3fe41.lua"))()
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/074ae419ea26f2a773d8e592958ec2e8.lua"))()
