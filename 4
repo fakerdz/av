@@ -1,11 +1,3 @@
-getgenv().OldCFrame = nil
-getgenv().Enabled = true
-
-getgenv().Limits = {
-    ["Blue"] = 1,
-    ["Purple"] = 10
-}
-
 local SaveModule = require(game.ReplicatedStorage.Library.Client.Save)
 
 local Workspace = game:GetService("Workspace")
@@ -67,6 +59,9 @@ function GetAmountOfOpensCrystalKeys()
     return 0
 end
 
+getgenv().OldCFrame = nil
+getgenv().Enabled = true
+
 function SetCFrame()
     getgenv().OldCFrame = PlayerHumanoidRootPart.CFrame
 end
@@ -74,7 +69,7 @@ end
 spawn(function () 
     while wait() do
         
-        if GetAmountOfSecretKeys() >= 1 and getgenv().Enabled and GetAmountOfSecretKeys() >= getgenv().Limits.Purple then
+        if GetAmountOfSecretKeys() >= 1 and getgenv().Enabled then
             SetCFrame()
             PlayerCharacter:SetPrimaryPartCFrame(PositionSecretChest)
 
@@ -85,7 +80,7 @@ spawn(function ()
             PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
         end
 
-        if GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled and GetAmountOfCrystalKeys() >= getgenv().Limits.Blue then
+        if GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled then
             SetCFrame()
             PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
 
