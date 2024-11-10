@@ -1,32 +1,101 @@
-script_key="WdeIbSCZEBXtxPjTnYmSkxTcHTPFVeSV";
+getgenv().OldCFrame = nil
+getgenv().Enabled = true
 
-getgenv().petsGoConfig = {
-    DISCORD_ID = "",
-    MAIL_UPGRADE_GEM_WEBHOOK_URL = "",
-
-    MAIL_GEMS_USERNAME_LIST = {
-"QUggNWBXjDg", "yjydZMQSdWS", "fmrDfaptIqt", "ZdWzXwjjMOi", "IFMxAIbWwjW", "njxZLgbmJOa",
-"YoZriHMwDjn", "KUeFZqtJMTp", "vjFjuBrlUES", "XjsFDziCpIP", "nHDwXZikjsZ", "gNCakldgLIJ",
-"RnhEkBVaHcF", "IbrTiAZSqcv", "cawgcPwVHLe", "zRsTEQHKyvu", "cLJUIgfPEgJ", "qikCbsHPfgG",
-"EDaCtHbXsXe", "kaHCYQKPnzz", "PnhBINfjkpo", "BHgdganNrnN", "knurKXYpUmL", "UKNPjnpqrHB",
-"LvIUdjNJXal", "QBnmNWXfsKC", "mrkLXasfdkn", "DztbUhhnbWE", "FRjqGoXfGzF", "uphwIQGbIrg",
-"mbBugpdbbGU", "lUrCkxQfJbN", "dcTFFhdQRnh", "ZpERkCSeBuV", "XzGlRfufdpK", "vMbanNuPyCP",
-"MqLfFCvzwmL", "orEBOYryDqc", "cVexitDBpqo", "ZviFFTXNMqy", "mNhQTalLqaK", "GGzhmxPpiMf",
-"ZlAUvoNbcGN", "ttShEzAVjcs", "EvgimPBKNlL", "stBngqLUWTe", "rLpMBQwEvjp", "JEAYsKwSomk",
-"oRFjUYYFoLA", "XmHFPmKuNYZ", "VHumcJzQYUR", "oSoDdTzXOGx", "umAjvrubwJp", "GhSjiaTuVdr",
-"EBkyfnzlkKB", "lYUgPOtdTGW", "MCVAnczjrex", "kOgzHJmZZub", "RoachAnnette1", "HarveyRonnie7",
-"lGlgyeaGHvh", "ChphHQQswWe", "xQOqpSmoako", "XaQBBvyEMPw", "ncogcwKupCq", "kQGRqWhOCVj",
-"zySDbkliZSP", "dloZTwssdSl", "CpgriykCHKX", "kvmBUQtSzkS", "LfRIoqaaqTb", "PTgUyupRzWU",
-"mWZNMasvweA", "oYVnriCZVaL", "GzEwXLEDyLE", "yIPfhAyzyAB", "UynqsozBfOt", "lyzwalCsFuf",
-"LVuMDZNIvOP", "PCcWBEBUPtb", "erAIolEWYkq", "qBAHshMMocL", "VEIJDGzzAUt", "UqKqeoDWXqS",
-"bDoUzvCGnBZ", "yToAsMytbKa", "YwzZhhMyyfg", "FGYaaaeXvVx", "HzurJDaxodA", "ebMFQqbKTrM",
-"SurmQRsbXRh", "JIileEwNNXM", "IzsnJtNhruU", "jlZmQsBsfVr", "XtoweLmgIfV", "sfJEKZtUtnd",
-"scmAQusCPGv", "OmBchMnHIhL", "JhJozFWzGhC", "qTvwfcnxXAF", "VYJkCDJXjcv", "chbfdGHsgaS",
-"XMmdYbCJcrE", "qOCLkDTWhmV", "PEmbYZuOcMm", "QEnBTTBrCSM", "uUPQzCFqBkm", "ruezCASjOJz",
-"LCeSaLvcIaQ", "WBKpGnPkTlJ", "LJrPvlkIdtO", "XFfClNRYbKh", "FgQqIoDXjsM", "ojOrIORrsEz",
-"nXlAoJlHYHr", "TKBkQxOspNt", "caQqgPYwVti", "bnVJeEiJhbs", "MqZSyMDyLcz", "qOlXfkiMjxj"
-
-    }  -- ONE TIME 370k GEMS MAIL FOR FULL DIAMOND UPGRADE
+getgenv().Limits = {
+    ["Blue"] = 1,
+    ["Purple"] = 10
 }
 
-loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/1fcefa454021976ebb3a7ad670dfb077.lua"))()
+local SaveModule = require(game.ReplicatedStorage.Library.Client.Save)
+
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+local PlayerCharacter = Workspace:WaitForChild(Players.LocalPlayer.Name)
+local PlayerHumanoidRootPart =PlayerCharacter:FindFirstChild("HumanoidRootPart")
+
+local PositionBlueChest = CFrame.new(-23.4127789, 3.60205817, 171.047852, -0.859449804, -2.70322804e-08, 0.511220098, 1.88000246e-08, 1, 8.44840713e-08, -0.511220098, 8.22207724e-08, -0.859449804)
+local PositionSecretChest = CFrame.new(215.447311, -116.493744, -150.387924, 0.100747772, 2.0890738e-08, 0.994912028, 7.33217131e-09, 1, -2.17400515e-08, -0.994912028, 9.48512735e-09, 0.100747772)
+
+-- PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
+
+
+function OpenChest(amount, secret)
+    local args = {
+        [1] = amount,
+        [2] = secret
+    }
+
+    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("LootChest_Unlock"):InvokeServer(unpack(args))
+end
+
+function GetAmountOfSecretKeys()
+    local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
+    local ItemID = "4c56817ec1f14d04ac9b5d6183bb238b"
+    local Item = PlayerSaves.Inventory.Misc[ItemID]
+
+    if Item then
+        return Item._am
+    end
+
+    return 0
+end
+
+function GetAmountOfCrystalKeys()
+    local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
+    local ItemID = "0a2b6f00bdcb42678b17c72b055753a3"
+    local Item = PlayerSaves.Inventory.Misc[ItemID]
+
+    if Item then
+        return Item._am
+    end
+
+    return 0
+end
+
+function GetAmountOfOpensCrystalKeys()
+    local Amount = GetAmountOfCrystalKeys()
+    local StartingIndex = 10
+    while StartingIndex > 0 do
+        if Amount/StartingIndex >= 1 then
+            return StartingIndex
+        end
+        StartingIndex = StartingIndex - 1
+    end
+
+    return 0
+end
+
+function SetCFrame()
+    getgenv().OldCFrame = PlayerHumanoidRootPart.CFrame
+end
+
+spawn(function () 
+    while wait() do
+        
+        if GetAmountOfSecretKeys() >= 1 and getgenv().Enabled and GetAmountOfSecretKeys() >= getgenv().Limits.Purple then
+            SetCFrame()
+            PlayerCharacter:SetPrimaryPartCFrame(PositionSecretChest)
+
+            while GetAmountOfSecretKeys() >= 1 and getgenv().Enabled do
+                OpenChest(1, true)
+            end
+            
+            PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
+        end
+
+        if GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled and GetAmountOfCrystalKeys() >= getgenv().Limits.Blue then
+            SetCFrame()
+            PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
+
+            while GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled do
+                local amount = GetAmountOfOpensCrystalKeys()
+                OpenChest(amount, false)
+            end
+
+            PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
+        end
+
+    end
+end)
