@@ -99,3 +99,54 @@ function GetAmountOfCrystalKeys()
 
     return 0
 end
+
+function GetAmountOfOpensCrystalKeys()
+    print("Gọi GetAmountOfOpensCrystalKeys")
+    local Amount = GetAmountOfCrystalKeys()
+    local StartingIndex = 10
+    while StartingIndex > 0 do
+        if Amount / StartingIndex >= 1 then
+            return StartingIndex
+        end
+        StartingIndex = StartingIndex - 1
+    end
+
+    return 0
+end
+
+function SetCFrame()
+    print("Thiết lập OldCFrame")
+    getgenv().OldCFrame = PlayerHumanoidRootPart.CFrame
+end
+
+-- Vòng lặp kiểm tra chính
+spawn(function()
+    while wait(1) do
+        print("Vòng lặp chính đang chạy...")
+
+        if GetAmountOfSecretKeys() >= 1 and getgenv().Enabled and GetAmountOfSecretKeys() >= getgenv().Limits.Purple then
+            print("Bắt đầu mở Secret Chest")
+            SetCFrame()
+            PlayerCharacter:SetPrimaryPartCFrame(PositionSecretChest)
+
+            while GetAmountOfSecretKeys() >= 1 and getgenv().Enabled do
+                OpenChest(1, true)
+            end
+
+            PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
+        end
+
+        if GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled and GetAmountOfCrystalKeys() >= getgenv().Limits.Blue then
+            print("Bắt đầu mở Blue Chest")
+            SetCFrame()
+            PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
+
+            while GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled do
+                local amount = GetAmountOfOpensCrystalKeys()
+                OpenChest(amount, false)
+            end
+
+            PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
+        end
+    end
+end)
