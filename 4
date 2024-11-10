@@ -124,7 +124,13 @@ spawn(function()
     while wait(1) do
         print("Vòng lặp chính đang chạy...")
 
-        if GetAmountOfSecretKeys() >= 1 and getgenv().Enabled and GetAmountOfSecretKeys() >= getgenv().Limits.Purple then
+        local secretKeys = GetAmountOfSecretKeys()
+        local crystalKeys = GetAmountOfCrystalKeys()
+
+        print("Số lượng Secret Keys:", secretKeys)
+        print("Số lượng Crystal Keys:", crystalKeys)
+
+        if secretKeys >= 1 and getgenv().Enabled and secretKeys >= getgenv().Limits.Purple then
             print("Bắt đầu mở Secret Chest")
             SetCFrame()
             PlayerCharacter:SetPrimaryPartCFrame(PositionSecretChest)
@@ -136,7 +142,7 @@ spawn(function()
             PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
         end
 
-        if GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled and GetAmountOfCrystalKeys() >= getgenv().Limits.Blue then
+        if GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled and crystalKeys >= getgenv().Limits.Blue then
             print("Bắt đầu mở Blue Chest")
             SetCFrame()
             PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
