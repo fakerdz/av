@@ -9,9 +9,11 @@ getgenv().Limits = {
 
 -- Kiểm tra và tải SaveModule
 local success, SaveModule = pcall(function() return require(game.ReplicatedStorage.Library.Client.Save) end)
-if not success then
+if not success or not SaveModule then
     warn("SaveModule không tồn tại hoặc không thể tải.")
     return
+else
+    print("SaveModule được tải thành công.")
 end
 
 -- Dịch vụ cần thiết
@@ -30,12 +32,16 @@ local PlayerCharacter = Workspace:WaitForChild(Player.Name)
 if not PlayerCharacter then
     warn("PlayerCharacter không tồn tại.")
     return
+else
+    print("PlayerCharacter được tìm thấy.")
 end
 
 local PlayerHumanoidRootPart = PlayerCharacter:FindFirstChild("HumanoidRootPart")
 if not PlayerHumanoidRootPart then
     warn("HumanoidRootPart không tồn tại.")
     return
+else
+    print("HumanoidRootPart được tìm thấy.")
 end
 
 -- Định vị trí các hòm
@@ -53,6 +59,7 @@ function OpenChest(amount, secret)
     if Network then
         local LootChest_Unlock = Network:FindFirstChild("LootChest_Unlock")
         if LootChest_Unlock then
+            print("Mở hòm với số lượng:", amount, "và loại:", secret)
             LootChest_Unlock:InvokeServer(unpack(args))
         else
             warn("LootChest_Unlock không tồn tại trong Network.")
@@ -66,10 +73,12 @@ end
 function GetAmountOfSecretKeys()
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
     local ItemID = "4c56817ec1f14d04ac9b5d6183bb238b"
-    local Item = PlayerSaves.Inventory.Misc[ItemID]
+    local Item = PlayerSaves.Inventory and PlayerSaves.Inventory.Misc and PlayerSaves.Inventory.Misc[ItemID]
 
     if Item then
         return Item._am
+    else
+        warn("Không tìm thấy Item với ID:", ItemID)
     end
 
     return 0
@@ -79,10 +88,12 @@ end
 function GetAmountOfCrystalKeys()
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
     local ItemID = "0a2b6f00bdcb42678b17c72b055753a3"
-    local Item = PlayerSaves.Inventory.Misc[ItemID]
+    local Item = PlayerSaves.Inventory and PlayerSaves.Inventory.Misc and PlayerSaves.Inventory.Misc[ItemID]
 
     if Item then
         return Item._am
+    else
+        warn("Không tìm thấy Item với ID:", ItemID)
     end
 
     return 0
@@ -104,7 +115,11 @@ end
 
 -- Hàm thiết lập CFrame cũ của người chơi
 function SetCFrame()
-    getgenv().OldCFrame = PlayerHumanoidRootPart.CFrame
+    if PlayerHumanoidRootPart then
+        getgenv().OldCFrame = PlayerHumanoidRootPart.CFrame
+    else
+        warn("Không thể thiết lập OldCFrame vì HumanoidRootPart không tồn tại.")
+    end
 end
 
 -- Vòng lặp mở hòm
