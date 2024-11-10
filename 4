@@ -12,24 +12,41 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
-local PlayerCharacter = Workspace:WaitForChild(Players.LocalPlayer.Name)
-local PlayerHumanoidRootPart =PlayerCharacter:FindFirstChild("HumanoidRootPart")
+-- Kiểm tra xem nhân vật người chơi đã tải chưa
+local PlayerCharacter = Workspace:WaitForChild(Players.LocalPlayer.Name, 10)
+if not PlayerCharacter then
+    warn("Không thể tìm thấy nhân vật người chơi!")
+    return
+end
 
+-- Kiểm tra xem HumanoidRootPart có tồn tại không
+local PlayerHumanoidRootPart = PlayerCharacter:WaitForChild("HumanoidRootPart", 10)
+if not PlayerHumanoidRootPart then
+    warn("Không thể tìm thấy HumanoidRootPart!")
+    return
+end
+
+-- Vị trí của các hòm (chỉnh lại nếu cần)
 local PositionBlueChest = CFrame.new(-23.4127789, 3.60205817, 171.047852, -0.859449804, -2.70322804e-08, 0.511220098, 1.88000246e-08, 1, 8.44840713e-08, -0.511220098, 8.22207724e-08, -0.859449804)
 local PositionSecretChest = CFrame.new(215.447311, -116.493744, -150.387924, 0.100747772, 2.0890738e-08, 0.994912028, 7.33217131e-09, 1, -2.17400515e-08, -0.994912028, 9.48512735e-09, 0.100747772)
 
--- PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
-
-
+-- Hàm mở hòm
 function OpenChest(amount, secret)
     local args = {
         [1] = amount,
         [2] = secret
     }
-
-    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("LootChest_Unlock"):InvokeServer(unpack(args))
+    
+    -- Kiểm tra và gọi InvokeServer
+    local LootChestUnlock = game:GetService("ReplicatedStorage"):FindFirstChild("Network"):FindFirstChild("LootChest_Unlock")
+    if LootChestUnlock then
+        LootChestUnlock:InvokeServer(unpack(args))
+    else
+        warn("LootChest_Unlock không tồn tại.")
+    end
 end
 
+-- Hàm lấy số lượng Secret Keys
 function GetAmountOfSecretKeys()
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
     local ItemID = "4c56817ec1f14d04ac9b5d6183bb238b"
@@ -42,6 +59,7 @@ function GetAmountOfSecretKeys()
     return 0
 end
 
+-- Hàm lấy số lượng Crystal Keys
 function GetAmountOfCrystalKeys()
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
     local ItemID = "0a2b6f00bdcb42678b17c72b055753a3"
@@ -54,11 +72,12 @@ function GetAmountOfCrystalKeys()
     return 0
 end
 
+-- Hàm lấy số lượng lần mở hòm với Crystal Keys
 function GetAmountOfOpensCrystalKeys()
     local Amount = GetAmountOfCrystalKeys()
     local StartingIndex = 10
     while StartingIndex > 0 do
-        if Amount/StartingIndex >= 1 then
+        if Amount / StartingIndex >= 1 then
             return StartingIndex
         end
         StartingIndex = StartingIndex - 1
@@ -67,13 +86,14 @@ function GetAmountOfOpensCrystalKeys()
     return 0
 end
 
+-- Hàm thiết lập vị trí ban đầu
 function SetCFrame()
     getgenv().OldCFrame = PlayerHumanoidRootPart.CFrame
 end
 
-spawn(function () 
+-- Chạy liên tục để mở hòm
+spawn(function() 
     while wait() do
-        
         if GetAmountOfSecretKeys() >= 1 and getgenv().Enabled and GetAmountOfSecretKeys() >= getgenv().Limits.Purple then
             SetCFrame()
             PlayerCharacter:SetPrimaryPartCFrame(PositionSecretChest)
@@ -96,6 +116,5 @@ spawn(function ()
 
             PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
         end
-
     end
 end)
