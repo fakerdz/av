@@ -1,15 +1,21 @@
-print("Script đã khởi động")
+getgenv().OldCFrame = nil
+getgenv().Enabled = true
+
+getgenv().Limits = {
+    ["Blue"] = 1,
+    ["Purple"] = 10
+}
 
 local SaveModule = require(game.ReplicatedStorage.Library.Client.Save)
+
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
-local HttpService = game:GetService("HttpService")
 
 local PlayerCharacter = Workspace:WaitForChild(Players.LocalPlayer.Name)
 local PlayerHumanoidRootPart = PlayerCharacter:FindFirstChild("HumanoidRootPart")
 
-local PositionBlueChest = CFrame.new(-23.4127789, 3.60205817, 171.047852)
-local PositionSecretChest = CFrame.new(215.447311, -116.493744, -150.387924)
+local PositionBlueChest = CFrame.new(-23.4127789, 3.60205817, 171.047852, -0.859449804, -2.70322804e-08, 0.511220098, 1.88000246e-08, 1, 8.44840713e-08, -0.511220098, 8.22207724e-08, -0.859449804)
+local PositionSecretChest = CFrame.new(215.447311, -116.493744, -150.387924, 0.100747772, 2.0890738e-08, 0.994912028, 7.33217131e-09, 1, -2.17400515e-08, -0.994912028, 9.48512735e-09, 0.100747772)
 
 function OpenChest(amount, secret)
     local args = {
@@ -19,36 +25,67 @@ function OpenChest(amount, secret)
     game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("LootChest_Unlock"):InvokeServer(unpack(args))
 end
 
+-- Giả sử rằng bạn đã biết cách xác định số lượng chìa khóa của Crystal và Secret Chest mà không cần ID
+
 function GetAmountOfSecretKeys()
-    print("Gọi GetAmountOfSecretKeys")
+    -- Ví dụ nếu bạn có cách lấy số lượng chìa khóa Secret trực tiếp
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
-    print("PlayerSaves:", HttpService:JSONEncode(PlayerSaves))  -- In toàn bộ PlayerSaves để kiểm tra cấu trúc
-    local ItemID = "4c56817ec1f14d04ac9b5d6183bb238b"
-    local Item = PlayerSaves.Inventory and PlayerSaves.Inventory.Misc and PlayerSaves.Inventory.Misc[ItemID]
-
-    if Item then
-        print("Số lượng Secret Keys:", Item._am)
-        return Item._am
-    else
-        warn("Không tìm thấy Item với ID:", ItemID)
+    local SecretChest = PlayerSaves.Inventory.Misc["SecretChest"]  -- Sử dụng "SecretChest" thay vì ItemID
+    if SecretChest then
+        return SecretChest._am
     end
-
     return 0
 end
 
 function GetAmountOfCrystalKeys()
-    print("Gọi GetAmountOfCrystalKeys")
+    -- Ví dụ nếu bạn có cách lấy số lượng chìa khóa Crystal trực tiếp
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
-    print("PlayerSaves:", HttpService:JSONEncode(PlayerSaves))  -- In toàn bộ PlayerSaves để kiểm tra cấu trúc
-    local ItemID = "0a2b6f00bdcb42678b17c72b055753a3"
-    local Item = PlayerSaves.Inventory and PlayerSaves.Inventory.Misc and PlayerSaves.Inventory.Misc[ItemID]
-
-    if Item then
-        print("Số lượng Crystal Keys:", Item._am)
-        return Item._am
-    else
-        warn("Không tìm thấy Item với ID:", ItemID)
+    local CrystalChest = PlayerSaves.Inventory.Misc["CrystalChest"]  -- Sử dụng "CrystalChest" thay vì ItemID
+    if CrystalChest then
+        return CrystalChest._am
     end
-
     return 0
 end
+
+function GetAmountOfOpensCrystalKeys()
+    local Amount = GetAmountOfCrystalKeys()
+    local StartingIndex = 10
+    while StartingIndex > 0 do
+        if Amount / StartingIndex >= 1 then
+            return StartingIndex
+        end
+        StartingIndex = StartingIndex - 1
+    end
+    return 0
+end
+
+function SetCFrame()
+    getgenv().OldCFrame = PlayerHumanoidRootPart.CFrame
+end
+
+spawn(function()
+    while wait() do
+        if GetAmountOfSecretKeys() >= 1 and getgenv().Enabled and GetAmountOfSecretKeys() >= getgenv().Limits.Purple then
+            SetCFrame()
+            PlayerCharacter:SetPrimaryPartCFrame(PositionSecretChest)
+
+            while GetAmountOfSecretKeys() >= 1 and getgenv().Enabled do
+                OpenChest(1, true)
+            end
+
+            PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
+        end
+
+        if GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled and GetAmountOfCrystalKeys() >= getgenv().Limits.Blue then
+            SetCFrame()
+            PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
+
+            while GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled do
+                local amount = GetAmountOfOpensCrystalKeys()
+                OpenChest(amount, false)
+            end
+
+            PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
+        end
+    end
+end)
