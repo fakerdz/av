@@ -1,3 +1,4 @@
+-- Cấu hình chung
 getgenv().OldCFrame = nil
 getgenv().Enabled = true
 
@@ -6,30 +7,62 @@ getgenv().Limits = {
     ["Purple"] = 10
 }
 
-local SaveModule = require(game.ReplicatedStorage.Library.Client.Save)
+-- Kiểm tra và tải SaveModule
+local success, SaveModule = pcall(function() return require(game.ReplicatedStorage.Library.Client.Save) end)
+if not success then
+    warn("SaveModule không tồn tại hoặc không thể tải.")
+    return
+end
 
+-- Dịch vụ cần thiết
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
-local PlayerCharacter = Workspace:WaitForChild(Players.LocalPlayer.Name)
-local PlayerHumanoidRootPart =PlayerCharacter:FindFirstChild("HumanoidRootPart")
+-- Kiểm tra sự tồn tại của Player và các phần cơ bản
+local Player = Players.LocalPlayer
+if not Player then
+    warn("LocalPlayer không tồn tại.")
+    return
+end
 
+local PlayerCharacter = Workspace:WaitForChild(Player.Name)
+if not PlayerCharacter then
+    warn("PlayerCharacter không tồn tại.")
+    return
+end
+
+local PlayerHumanoidRootPart = PlayerCharacter:FindFirstChild("HumanoidRootPart")
+if not PlayerHumanoidRootPart then
+    warn("HumanoidRootPart không tồn tại.")
+    return
+end
+
+-- Định vị trí các hòm
 local PositionBlueChest = CFrame.new(-23.4127789, 3.60205817, 171.047852, -0.859449804, -2.70322804e-08, 0.511220098, 1.88000246e-08, 1, 8.44840713e-08, -0.511220098, 8.22207724e-08, -0.859449804)
 local PositionSecretChest = CFrame.new(215.447311, -116.493744, -150.387924, 0.100747772, 2.0890738e-08, 0.994912028, 7.33217131e-09, 1, -2.17400515e-08, -0.994912028, 9.48512735e-09, 0.100747772)
 
--- PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
-
-
+-- Hàm mở hòm, kiểm tra sự tồn tại của Network và LootChest_Unlock
 function OpenChest(amount, secret)
     local args = {
         [1] = amount,
         [2] = secret
     }
 
-    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("LootChest_Unlock"):InvokeServer(unpack(args))
+    local Network = game:GetService("ReplicatedStorage"):FindFirstChild("Network")
+    if Network then
+        local LootChest_Unlock = Network:FindFirstChild("LootChest_Unlock")
+        if LootChest_Unlock then
+            LootChest_Unlock:InvokeServer(unpack(args))
+        else
+            warn("LootChest_Unlock không tồn tại trong Network.")
+        end
+    else
+        warn("Network không tồn tại trong ReplicatedStorage.")
+    end
 end
 
+-- Hàm kiểm tra số lượng Secret Keys
 function GetAmountOfSecretKeys()
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
     local ItemID = "4c56817ec1f14d04ac9b5d6183bb238b"
@@ -42,6 +75,7 @@ function GetAmountOfSecretKeys()
     return 0
 end
 
+-- Hàm kiểm tra số lượng Crystal Keys
 function GetAmountOfCrystalKeys()
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
     local ItemID = "0a2b6f00bdcb42678b17c72b055753a3"
@@ -54,11 +88,12 @@ function GetAmountOfCrystalKeys()
     return 0
 end
 
+-- Hàm kiểm tra số lượng Crystal Keys mở được
 function GetAmountOfOpensCrystalKeys()
     local Amount = GetAmountOfCrystalKeys()
     local StartingIndex = 10
     while StartingIndex > 0 do
-        if Amount/StartingIndex >= 1 then
+        if Amount / StartingIndex >= 1 then
             return StartingIndex
         end
         StartingIndex = StartingIndex - 1
@@ -67,13 +102,15 @@ function GetAmountOfOpensCrystalKeys()
     return 0
 end
 
+-- Hàm thiết lập CFrame cũ của người chơi
 function SetCFrame()
     getgenv().OldCFrame = PlayerHumanoidRootPart.CFrame
 end
 
-spawn(function () 
+-- Vòng lặp mở hòm
+spawn(function()
     while wait() do
-        
+        -- Mở Secret Chest nếu có đủ số lượng
         if GetAmountOfSecretKeys() >= 1 and getgenv().Enabled and GetAmountOfSecretKeys() >= getgenv().Limits.Purple then
             SetCFrame()
             PlayerCharacter:SetPrimaryPartCFrame(PositionSecretChest)
@@ -81,10 +118,11 @@ spawn(function ()
             while GetAmountOfSecretKeys() >= 1 and getgenv().Enabled do
                 OpenChest(1, true)
             end
-            
+
             PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
         end
 
+        -- Mở Blue Chest nếu có đủ số lượng
         if GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled and GetAmountOfCrystalKeys() >= getgenv().Limits.Blue then
             SetCFrame()
             PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
@@ -96,6 +134,5 @@ spawn(function ()
 
             PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
         end
-
     end
 end)
