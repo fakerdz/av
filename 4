@@ -1,45 +1,81 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
-local keyword = "Chest"  -- Từ khóa cần tìm trong tên của đối tượng
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Hàm đệ quy để tìm các đối tượng có chứa từ khóa trong tên và in ra thông tin chi tiết
-local function searchForKeywordInChildren(parent)
-    for _, object in pairs(parent:GetChildren()) do
-        if string.find(object.Name, keyword) then
-            print("Đối tượng chứa từ khóa '" .. keyword .. "':", object.Name)
+-- Đặt tên hoặc vị trí chính xác của Crystal Chest
+local crystalChestName = "CrystalChest"  -- Đặt tên chính xác của Crystal Chest nếu có
+local crystalChest = Workspace:FindFirstChild(crystalChestName, true)  -- Tìm Crystal Chest
 
-            -- In ra các thuộc tính của đối tượng
-            print("Các thuộc tính của đối tượng:")
-            for key, value in pairs(object:GetAttributes()) do
-                print(" -", key, value)
-            end
-            
-            -- In ra thông tin về các phần tử con và thử lấy thêm thông tin mã
-            print("Thông tin chi tiết của các đối tượng con:")
-            for _, child in pairs(object:GetChildren()) do
-                print(" -- Tên:", child.Name, "Loại:", child.ClassName)
-                
-                -- In ra tất cả các thuộc tính của đối tượng con
-                for attribute, value in pairs(child:GetAttributes()) do
-                    print(" ---", attribute, value)
-                end
-                
-                -- Thử in giá trị nếu đối tượng có thể có một tham chiếu hoặc mã đặc biệt
-                if child:IsA("Model") or child:IsA("Folder") then
-                    for subkey, subvalue in pairs(child:GetChildren()) do
-                        print(" --- Phần tử bên trong:", subvalue.Name, "Loại:", subvalue.ClassName)
-                        for subattr, subval in pairs(subvalue:GetAttributes()) do
-                            print(" ---- Thuộc tính:", subattr, subval)
-                        end
-                    end
-                end
-            end
+-- Bước 1: Lấy thông tin chi tiết của Crystal Chest
+if crystalChest then
+    print("Đã tìm thấy Crystal Chest:", crystalChest.Name)
+    
+    -- In ra tất cả các thuộc tính của Crystal Chest
+    print("Các thuộc tính của Crystal Chest:")
+    for key, value in pairs(crystalChest:GetAttributes()) do
+        print(" -", key, value)
+    end
+    
+    -- Liệt kê các đối tượng con của Crystal Chest (nếu có)
+    print("Thông tin chi tiết của các đối tượng con:")
+    for _, child in pairs(crystalChest:GetChildren()) do
+        print(" -- Tên:", child.Name, "Loại:", child.ClassName)
+    end
+else
+    print("Không tìm thấy Crystal Chest.")
+    return
+end
+
+-- Bước 2: Kiểm tra số lượng Crystal Key trong Inventory
+local SaveModule = require(ReplicatedStorage.Library.Client.Save)
+local PlayerSaves = SaveModule.GetSaves()[Player]
+local hasCrystalKey = false
+local crystalKeyID = nil  -- Nếu bạn biết ID của Crystal Key, hãy đặt ở đây
+
+if PlayerSaves and PlayerSaves.Inventory and PlayerSaves.Inventory.Misc then
+    if crystalKeyID then
+        -- Nếu bạn đã biết ID của Crystal Key
+        local crystalKeyItem = PlayerSaves.Inventory.Misc[crystalKeyID]
+        if crystalKeyItem then
+            print("Số lượng Crystal Key:", crystalKeyItem._am)
+            hasCrystalKey = crystalKeyItem._am > 0
+        else
+            print("Không tìm thấy Crystal Key trong Inventory.")
         end
-        -- Tiếp tục tìm kiếm trong các đối tượng con nếu có
-        if #object:GetChildren() > 0 then
-            searchForKeywordInChildren(object)
+    else
+        -- Nếu không biết ID, tìm kiếm bằng từ khóa
+        for key, item in pairs(PlayerSaves.Inventory.Misc) do
+            if item.Name and string.find(item.Name, "Crystal") then
+                print("Đã tìm thấy Crystal Key:", item.Name, "Số lượng:", item._am)
+                hasCrystalKey = item._am > 0
+                break
+            end
         end
     end
 end
 
--- Bắt đầu tìm từ Workspace
-searchForKeywordInChildren(Workspace)
+if not hasCrystalKey then
+    print("Không có Crystal Key hoặc không tìm thấy trong Inventory.")
+    return
+end
+
+-- Bước 3: Dịch chuyển đến vị trí của Crystal Chest
+if crystalChest and crystalChest:IsA("BasePart") then
+    HumanoidRootPart.CFrame = crystalChest.CFrame
+    print("Đã dịch chuyển tới Crystal Chest.")
+else
+    print("Không thể dịch chuyển tới Crystal Chest.")
+    return
+end
+
+-- Bước 4: Mở khóa Crystal Chest
+local lootChestFunction = ReplicatedStorage:FindFirstChild("LootChest_Unlock")
+if lootChestFunction and lootChestFunction:IsA("RemoteFunction") then
+    local result = lootChestFunction:InvokeServer("CrystalChest")
+    print("Kết quả khi mở Crystal Chest:", result)
+else
+    print("Không tìm thấy RemoteFunction để mở Crystal Chest.")
+end
