@@ -1,31 +1,36 @@
-local Player = game.Players.LocalPlayer
-local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local Player = Players.LocalPlayer
 
--- Giả sử đối tượng bạn muốn nhấn có ClickDetector
-local chest = Workspace:FindFirstChild("CrystalChest")  -- Thay bằng tên chính xác của đối tượng nếu cần
+-- Bước 1: Nhấp vào ClickDetector của Crystal Chest
+local chest = Workspace:FindFirstChild("CrystalChest")  -- Đảm bảo tên đúng
 local clickDetector = chest and chest:FindFirstChildOfClass("ClickDetector")
 
 if clickDetector then
-    -- Bước 1: Tự động nhấp vào Crystal Chest để mở bảng tùy chọn
+    -- Nhấp vào Crystal Chest để mở bảng tùy chọn
     fireclickdetector(clickDetector)
-    print("Đã nhấp vào Crystal Chest.")
+    print("Đã nhấp vào Crystal Chest để mở bảng tùy chọn.")
     
-    -- Bước 2: Đợi bảng tùy chọn hiện ra, sau đó chọn "Unlock 10"
-    wait(1)  -- Đợi 1 giây để bảng hiện ra, có thể cần điều chỉnh thời gian chờ
+    -- Bước 2: Đợi bảng tùy chọn hiện ra, sau đó nhấp vào "Unlock 10"
+    wait(1)  -- Đợi một chút để bảng hiện ra
 
-    -- Sử dụng sự kiện để giả lập nhấn phím "E" để chọn "Unlock 10"
-    UIS.InputBegan:Connect(function(input)
-        if input.KeyCode == Enum.KeyCode.E then
-            local unlockOption = ReplicatedStorage:FindFirstChild("LootChest_Unlock")
-            if unlockOption then
-                unlockOption:InvokeServer("CrystalChest", 10)  -- Gửi lệnh mở "CrystalChest" với số lượng là 10
-                print("Đã chọn Unlock 10.")
-            else
-                print("Không tìm thấy RemoteFunction để mở Unlock 10.")
-            end
+    -- Tìm GUI của bảng và nhấp vào nút "Unlock 10"
+    local gui = Player.PlayerGui:FindFirstChild("TênGiaoDiện")  -- Đặt tên GUI chính xác nếu có
+
+    if gui then
+        local unlock10Button = gui:FindFirstChild("Unlock10Button")  -- Đảm bảo tên nút đúng
+        
+        if unlock10Button then
+            -- Giả lập nhấp vào nút "Unlock 10"
+            unlock10Button:FireClick()  -- Giả sử nút có phương thức `FireClick`, có thể cần điều chỉnh
+            print("Đã chọn Unlock 10.")
+        else
+            print("Không tìm thấy nút Unlock 10 trong GUI.")
         end
-    end)
+    else
+        print("Không tìm thấy GUI của bảng tùy chọn.")
+    end
 else
     print("Không tìm thấy Crystal Chest hoặc ClickDetector.")
 end
