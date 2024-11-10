@@ -1,73 +1,28 @@
 print("Script đã khởi động")
 
--- Cấu hình chung
-getgenv().OldCFrame = nil
-getgenv().Enabled = true
-
--- Kiểm tra và tải SaveModule
-local success, SaveModule = pcall(function() return require(game.ReplicatedStorage.Library.Client.Save) end)
-if not success or not SaveModule then
-    warn("SaveModule không tồn tại hoặc không thể tải.")
-else
-    print("SaveModule được tải thành công.")
-end
-
+local SaveModule = require(game.ReplicatedStorage.Library.Client.Save)
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
--- Kiểm tra LocalPlayer và Character
-local Player = Players.LocalPlayer
-if not Player then
-    warn("LocalPlayer không tồn tại.")
-else
-    print("LocalPlayer:", Player.Name)
-end
-
-local PlayerCharacter = Workspace:FindFirstChild(Player.Name)
-if not PlayerCharacter then
-    warn("PlayerCharacter không tồn tại trong Workspace.")
-else
-    print("PlayerCharacter được tìm thấy:", PlayerCharacter.Name)
-end
-
-local PlayerHumanoidRootPart = PlayerCharacter and PlayerCharacter:FindFirstChild("HumanoidRootPart")
-if not PlayerHumanoidRootPart then
-    warn("HumanoidRootPart không tồn tại.")
-else
-    print("HumanoidRootPart được tìm thấy.")
-end
+local PlayerCharacter = Workspace:WaitForChild(Players.LocalPlayer.Name)
+local PlayerHumanoidRootPart = PlayerCharacter:FindFirstChild("HumanoidRootPart")
 
 local PositionBlueChest = CFrame.new(-23.4127789, 3.60205817, 171.047852)
 local PositionSecretChest = CFrame.new(215.447311, -116.493744, -150.387924)
 
--- Hàm mở hòm
 function OpenChest(amount, secret)
-    print("Gọi OpenChest với số lượng:", amount, "và loại:", secret)
     local args = {
         [1] = amount,
         [2] = secret
     }
-
-    local Network = game:GetService("ReplicatedStorage"):FindFirstChild("Network")
-    if Network then
-        print("Network tồn tại.")
-        local LootChest_Unlock = Network:FindFirstChild("LootChest_Unlock")
-        if LootChest_Unlock then
-            print("LootChest_Unlock tồn tại. Mở hòm với số lượng:", amount, "và loại:", secret)
-            LootChest_Unlock:InvokeServer(unpack(args))
-        else
-            warn("LootChest_Unlock không tồn tại trong Network.")
-        end
-    else
-        warn("Network không tồn tại trong ReplicatedStorage.")
-    end
+    game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("LootChest_Unlock"):InvokeServer(unpack(args))
 end
 
--- Hàm lấy số lượng Secret Keys
 function GetAmountOfSecretKeys()
     print("Gọi GetAmountOfSecretKeys")
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
+    print("PlayerSaves:", HttpService:JSONEncode(PlayerSaves))  -- In toàn bộ PlayerSaves để kiểm tra cấu trúc
     local ItemID = "4c56817ec1f14d04ac9b5d6183bb238b"
     local Item = PlayerSaves.Inventory and PlayerSaves.Inventory.Misc and PlayerSaves.Inventory.Misc[ItemID]
 
@@ -81,10 +36,10 @@ function GetAmountOfSecretKeys()
     return 0
 end
 
--- Hàm lấy số lượng Crystal Keys
 function GetAmountOfCrystalKeys()
     print("Gọi GetAmountOfCrystalKeys")
     local PlayerSaves = SaveModule.GetSaves()[Players.LocalPlayer] or {}
+    print("PlayerSaves:", HttpService:JSONEncode(PlayerSaves))  -- In toàn bộ PlayerSaves để kiểm tra cấu trúc
     local ItemID = "0a2b6f00bdcb42678b17c72b055753a3"
     local Item = PlayerSaves.Inventory and PlayerSaves.Inventory.Misc and PlayerSaves.Inventory.Misc[ItemID]
 
@@ -97,67 +52,3 @@ function GetAmountOfCrystalKeys()
 
     return 0
 end
-
--- Hàm lấy số lượng Opens Crystal Keys
-function GetAmountOfOpensCrystalKeys()
-    print("Gọi GetAmountOfOpensCrystalKeys")
-    local Amount = GetAmountOfCrystalKeys()
-    local StartingIndex = 10
-    while StartingIndex > 0 do
-        if Amount / StartingIndex >= 1 then
-            print("Số lượng Opens Crystal Keys:", StartingIndex)
-            return StartingIndex
-        end
-        StartingIndex = StartingIndex - 1
-    end
-
-    return 0
-end
-
--- Hàm thiết lập vị trí cũ của người chơi
-function SetCFrame()
-    print("Thiết lập OldCFrame")
-    if PlayerHumanoidRootPart then
-        getgenv().OldCFrame = PlayerHumanoidRootPart.CFrame
-    else
-        warn("Không thể thiết lập OldCFrame vì HumanoidRootPart không tồn tại.")
-    end
-end
-
--- Vòng lặp chính
-spawn(function()
-    while wait(1) do
-        print("Vòng lặp chính đang chạy...")
-
-        local secretKeys = GetAmountOfSecretKeys()
-        local crystalKeys = GetAmountOfCrystalKeys()
-
-        print("Số lượng Secret Keys:", secretKeys)
-        print("Số lượng Crystal Keys:", crystalKeys)
-
-        if secretKeys >= 1 and getgenv().Enabled then
-            print("Bắt đầu mở Secret Chest")
-            SetCFrame()
-            PlayerCharacter:SetPrimaryPartCFrame(PositionSecretChest)
-
-            while GetAmountOfSecretKeys() >= 1 and getgenv().Enabled do
-                OpenChest(1, true)
-            end
-            
-            PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
-        end
-
-        if GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled then
-            print("Bắt đầu mở Blue Chest")
-            SetCFrame()
-            PlayerCharacter:SetPrimaryPartCFrame(PositionBlueChest)
-
-            while GetAmountOfOpensCrystalKeys() >= 1 and getgenv().Enabled do
-                local amount = GetAmountOfOpensCrystalKeys()
-                OpenChest(amount, false)
-            end
-
-            PlayerCharacter:SetPrimaryPartCFrame(getgenv().OldCFrame)
-        end
-    end
-end)
