@@ -1,81 +1,31 @@
+local Player = game.Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:Wait()
-local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Đặt tên hoặc vị trí chính xác của Crystal Chest
-local crystalChestName = "CrystalChest"  -- Đặt tên chính xác của Crystal Chest nếu có
-local crystalChest = Workspace:FindFirstChild(crystalChestName, true)  -- Tìm Crystal Chest
+-- Giả sử đối tượng bạn muốn nhấn có ClickDetector
+local chest = Workspace:FindFirstChild("CrystalChest")  -- Thay bằng tên chính xác của đối tượng nếu cần
+local clickDetector = chest and chest:FindFirstChildOfClass("ClickDetector")
 
--- Bước 1: Lấy thông tin chi tiết của Crystal Chest
-if crystalChest then
-    print("Đã tìm thấy Crystal Chest:", crystalChest.Name)
+if clickDetector then
+    -- Bước 1: Tự động nhấp vào Crystal Chest để mở bảng tùy chọn
+    fireclickdetector(clickDetector)
+    print("Đã nhấp vào Crystal Chest.")
     
-    -- In ra tất cả các thuộc tính của Crystal Chest
-    print("Các thuộc tính của Crystal Chest:")
-    for key, value in pairs(crystalChest:GetAttributes()) do
-        print(" -", key, value)
-    end
-    
-    -- Liệt kê các đối tượng con của Crystal Chest (nếu có)
-    print("Thông tin chi tiết của các đối tượng con:")
-    for _, child in pairs(crystalChest:GetChildren()) do
-        print(" -- Tên:", child.Name, "Loại:", child.ClassName)
-    end
-else
-    print("Không tìm thấy Crystal Chest.")
-    return
-end
+    -- Bước 2: Đợi bảng tùy chọn hiện ra, sau đó chọn "Unlock 10"
+    wait(1)  -- Đợi 1 giây để bảng hiện ra, có thể cần điều chỉnh thời gian chờ
 
--- Bước 2: Kiểm tra số lượng Crystal Key trong Inventory
-local SaveModule = require(ReplicatedStorage.Library.Client.Save)
-local PlayerSaves = SaveModule.GetSaves()[Player]
-local hasCrystalKey = false
-local crystalKeyID = nil  -- Nếu bạn biết ID của Crystal Key, hãy đặt ở đây
-
-if PlayerSaves and PlayerSaves.Inventory and PlayerSaves.Inventory.Misc then
-    if crystalKeyID then
-        -- Nếu bạn đã biết ID của Crystal Key
-        local crystalKeyItem = PlayerSaves.Inventory.Misc[crystalKeyID]
-        if crystalKeyItem then
-            print("Số lượng Crystal Key:", crystalKeyItem._am)
-            hasCrystalKey = crystalKeyItem._am > 0
-        else
-            print("Không tìm thấy Crystal Key trong Inventory.")
-        end
-    else
-        -- Nếu không biết ID, tìm kiếm bằng từ khóa
-        for key, item in pairs(PlayerSaves.Inventory.Misc) do
-            if item.Name and string.find(item.Name, "Crystal") then
-                print("Đã tìm thấy Crystal Key:", item.Name, "Số lượng:", item._am)
-                hasCrystalKey = item._am > 0
-                break
+    -- Sử dụng sự kiện để giả lập nhấn phím "E" để chọn "Unlock 10"
+    UIS.InputBegan:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.E then
+            local unlockOption = ReplicatedStorage:FindFirstChild("LootChest_Unlock")
+            if unlockOption then
+                unlockOption:InvokeServer("CrystalChest", 10)  -- Gửi lệnh mở "CrystalChest" với số lượng là 10
+                print("Đã chọn Unlock 10.")
+            else
+                print("Không tìm thấy RemoteFunction để mở Unlock 10.")
             end
         end
-    end
-end
-
-if not hasCrystalKey then
-    print("Không có Crystal Key hoặc không tìm thấy trong Inventory.")
-    return
-end
-
--- Bước 3: Dịch chuyển đến vị trí của Crystal Chest
-if crystalChest and crystalChest:IsA("BasePart") then
-    HumanoidRootPart.CFrame = crystalChest.CFrame
-    print("Đã dịch chuyển tới Crystal Chest.")
+    end)
 else
-    print("Không thể dịch chuyển tới Crystal Chest.")
-    return
-end
-
--- Bước 4: Mở khóa Crystal Chest
-local lootChestFunction = ReplicatedStorage:FindFirstChild("LootChest_Unlock")
-if lootChestFunction and lootChestFunction:IsA("RemoteFunction") then
-    local result = lootChestFunction:InvokeServer("CrystalChest")
-    print("Kết quả khi mở Crystal Chest:", result)
-else
-    print("Không tìm thấy RemoteFunction để mở Crystal Chest.")
+    print("Không tìm thấy Crystal Chest hoặc ClickDetector.")
 end
